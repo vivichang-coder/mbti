@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #F7F6F3;
+}
+
+/* Custom scrollbar for horizontal card scroll */
+.cards-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.cards-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Marker tooltip arrow */
+.tooltip-arrow::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: currentColor;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes markerPop {
+  0% { transform: translateX(-50%) translateY(-50%) scale(0.2); opacity: 0; }
+  70% { transform: translateX(-50%) translateY(-50%) scale(1.15); }
+  100% { transform: translateX(-50%) translateY(-50%) scale(1); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease forwards;
+}
