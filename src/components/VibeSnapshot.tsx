@@ -1,18 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Person, PEOPLE } from '../data/mbti';
 import type { DimensionKey } from '../data/mbti';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 const DIMS = [
-  { key: 'energy' as DimensionKey, name: '能量', left: '內向', right: '外向' },
-  { key: 'mind' as DimensionKey, name: '心智', left: '務實', right: '直覺' },
-  { key: 'nature' as DimensionKey, name: '本性', left: '理性', right: '感性' },
-  { key: 'tactics' as DimensionKey, name: '應對', left: '計劃', right: '靈活' },
+  { key: 'energy'   as DimensionKey, name: '能量', left: '內向', right: '外向' },
+  { key: 'mind'     as DimensionKey, name: '心智', left: '務實', right: '直覺' },
+  { key: 'nature'   as DimensionKey, name: '本性', left: '理性', right: '感性' },
+  { key: 'tactics'  as DimensionKey, name: '應對', left: '計劃', right: '靈活' },
   { key: 'identity' as DimensionKey, name: '身分', left: '波動', right: '果斷' },
 ];
 
-// ─── Canvas download ─────────────────────────────────────────────────────────
+// ─── Canvas download (light mode) ────────────────────────────────────────────
+
+const canvasRoundRect = (
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number, r: number
+) => {
+  const s = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + s, y);
+  ctx.lineTo(x + w - s, y);
+  ctx.arc(x + w - s, y + s, s, -Math.PI / 2, 0);
+  ctx.lineTo(x + w, y + h - s);
+  ctx.arc(x + w - s, y + h - s, s, 0, Math.PI / 2);
+  ctx.lineTo(x + s, y + h);
+  ctx.arc(x + s, y + h - s, s, Math.PI / 2, Math.PI);
+  ctx.lineTo(x, y + s);
+  ctx.arc(x + s, y + s, s, Math.PI, -Math.PI / 2);
+  ctx.closePath();
+};
 
 const hexToRgba = (hex: string, alpha: number) => {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -21,27 +39,8 @@ const hexToRgba = (hex: string, alpha: number) => {
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
-const canvasRoundRect = (
-  ctx: CanvasRenderingContext2D,
-  x: number, y: number, w: number, h: number, r: number
-) => {
-  const safeR = Math.min(r, w / 2, h / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + safeR, y);
-  ctx.lineTo(x + w - safeR, y);
-  ctx.arc(x + w - safeR, y + safeR, safeR, -Math.PI / 2, 0);
-  ctx.lineTo(x + w, y + h - safeR);
-  ctx.arc(x + w - safeR, y + h - safeR, safeR, 0, Math.PI / 2);
-  ctx.lineTo(x + safeR, y + h);
-  ctx.arc(x + safeR, y + h - safeR, safeR, Math.PI / 2, Math.PI);
-  ctx.lineTo(x, y + safeR);
-  ctx.arc(x + safeR, y + safeR, safeR, Math.PI, -Math.PI / 2);
-  ctx.closePath();
-};
-
 const downloadCard = async (person: Person) => {
   await document.fonts.ready;
-
   const DPR = 2;
   const W = 480, H = 600;
   const canvas = document.createElement('canvas');
@@ -50,14 +49,14 @@ const downloadCard = async (person: Person) => {
   const ctx = canvas.getContext('2d')!;
   ctx.scale(DPR, DPR);
 
-  // Background
-  ctx.fillStyle = '#111111';
+  // White background
+  ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, W, H);
 
-  // Radial glow overlay
-  const grd = ctx.createRadialGradient(W * 0.82, H * 0.15, 0, W * 0.82, H * 0.15, W * 0.75);
-  grd.addColorStop(0, hexToRgba(person.color, 0.22));
-  grd.addColorStop(1, hexToRgba(person.color, 0));
+  // Subtle radial glow
+  const grd = ctx.createRadialGradient(W * 0.85, H * 0.12, 0, W * 0.85, H * 0.12, W * 0.7);
+  grd.addColorStop(0, hexToRgba(person.color, 0.08));
+  grd.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = grd;
   ctx.fillRect(0, 0, W, H);
 
@@ -65,17 +64,16 @@ const downloadCard = async (person: Person) => {
   ctx.fillStyle = person.color;
   ctx.fillRect(0, 0, W, 3);
 
-  // Large faded MBTI type (background decoration)
-  const baseType = person.mbtiType.split('-')[0];
+  // Large faded MBTI type (decoration)
   ctx.font = `bold 96px Inter, -apple-system, sans-serif`;
-  ctx.fillStyle = hexToRgba(person.color, 0.07);
+  ctx.fillStyle = hexToRgba(person.color, 0.05);
   ctx.textAlign = 'right';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillText(baseType, W - 28, 165);
+  ctx.fillText(person.mbtiType.split('-')[0], W - 28, 165);
 
   // Name
   ctx.font = `600 30px Inter, -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.fillStyle = '#111111';
   ctx.textAlign = 'left';
   ctx.fillText(person.name, 40, 200);
 
@@ -86,16 +84,16 @@ const downloadCard = async (person: Person) => {
 
   // Role
   ctx.font = `400 12px Inter, -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.32)';
+  ctx.fillStyle = '#9CA3AF';
   ctx.fillText(`${person.mbtiRole} · ${person.mbtiRoleChinese}`, 40, 244);
 
   // Vibe
   ctx.font = `400 11px Inter, -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.fillStyle = '#C4C2BE';
   ctx.fillText(person.vibe, 40, 264);
 
   // Separator
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(40, 282);
@@ -108,25 +106,22 @@ const downloadCard = async (person: Person) => {
     const base = 298 + i * 50;
     const value = person.dimensions[dim.key];
 
-    ctx.font = `500 10px Inter, -apple-system, sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.28)';
-    ctx.textAlign = 'left';
-    ctx.fillText(dim.name, BAR_X, base + 12);
-
+    // Dim name · value% together
     ctx.font = `600 11px Inter, -apple-system, sans-serif`;
     ctx.fillStyle = person.color;
-    ctx.textAlign = 'right';
-    ctx.fillText(`${value}%`, W - BAR_X, base + 12);
+    ctx.textAlign = 'left';
+    ctx.fillText(`${dim.name} · ${value}%`, BAR_X, base + 12);
 
+    // Left/right trait labels
     ctx.font = `400 9px Inter, -apple-system, sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillStyle = '#C4C2BE';
     ctx.textAlign = 'left';
     ctx.fillText(dim.left, BAR_X, base + 28);
     ctx.textAlign = 'right';
     ctx.fillText(dim.right, W - BAR_X, base + 28);
 
     // Track
-    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillStyle = 'rgba(0,0,0,0.07)';
     canvasRoundRect(ctx, BAR_X, base + 34, BAR_W, 3, 1.5);
     ctx.fill();
 
@@ -141,18 +136,17 @@ const downloadCard = async (person: Person) => {
     ctx.arc(BAR_X + fillW, base + 35.5, 5, 0, Math.PI * 2);
     ctx.fillStyle = person.color;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
   });
 
   // Footer
   ctx.font = `400 9px Inter, -apple-system, sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
   ctx.textAlign = 'center';
   ctx.fillText('MBTI Personality Dashboard', W / 2, H - 18);
 
-  // Download
   canvas.toBlob(blob => {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
@@ -164,7 +158,7 @@ const downloadCard = async (person: Person) => {
   }, 'image/png');
 };
 
-// ─── Modal component ─────────────────────────────────────────────────────────
+// ─── Modal ───────────────────────────────────────────────────────────────────
 
 interface VibeSnapshotProps {
   person: Person;
@@ -177,7 +171,6 @@ export const VibeSnapshot: React.FC<VibeSnapshotProps> = ({ person, onClose }) =
 
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), 180);
-    // Prevent body scroll while modal open
     document.body.style.overflow = 'hidden';
     return () => {
       clearTimeout(t);
@@ -194,65 +187,60 @@ export const VibeSnapshot: React.FC<VibeSnapshotProps> = ({ person, onClose }) =
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(10px)' }}
+      style={{ backgroundColor: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(10px)' }}
       onClick={onClose}
     >
       <div
         className="relative w-full max-w-xs sm:max-w-sm"
         onClick={e => e.stopPropagation()}
-        style={{
-          animation: 'cardAppear 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
-        }}
+        style={{ animation: 'cardAppear 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards' }}
       >
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute -top-9 right-0 text-xs text-white opacity-50 hover:opacity-90 transition-opacity"
+          className="absolute -top-9 right-0 text-xs text-white opacity-60 hover:opacity-100 transition-opacity"
         >
           ✕ 關閉
         </button>
 
-        {/* Card */}
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#111111', boxShadow: '0 24px 64px rgba(0,0,0,0.6)' }}>
-          {/* Color bar */}
+        {/* Card — light mode */}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{
+            backgroundColor: '#FFFFFF',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.08)',
+            border: `1px solid ${person.color}22`,
+          }}
+        >
+          {/* Color accent bar */}
           <div style={{ height: '3px', backgroundColor: person.color }} />
 
           <div className="px-7 pt-6 pb-7 relative overflow-hidden">
-            {/* Background MBTI text (decorative) */}
+            {/* Background MBTI text (very faint on white) */}
             <div
               className="absolute top-2 right-4 font-bold select-none pointer-events-none leading-none"
-              style={{
-                fontSize: '90px',
-                color: person.color,
-                opacity: 0.07,
-                lineHeight: 1,
-                fontFamily: 'Inter, sans-serif',
-              }}
+              style={{ fontSize: '88px', color: person.color, opacity: 0.05, fontFamily: 'Inter, sans-serif' }}
             >
               {person.mbtiType.split('-')[0]}
             </div>
 
             {/* Name + type */}
             <div className="relative mb-5">
-              <h2 className="text-[26px] font-semibold leading-tight" style={{ color: 'rgba(255,255,255,0.95)' }}>
+              <h2 className="text-[26px] font-semibold leading-tight text-gray-900">
                 {person.name}
               </h2>
               <div className="flex items-center gap-2 mt-1.5">
                 <span className="text-[13px] font-semibold" style={{ color: person.color }}>
                   {person.mbtiType}
                 </span>
-                <span style={{ color: 'rgba(255,255,255,0.2)' }}>·</span>
-                <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.38)' }}>
-                  {person.mbtiRole}
-                </span>
+                <span className="text-gray-300">·</span>
+                <span className="text-[12px] text-gray-400">{person.mbtiRole}</span>
               </div>
-              <p className="mt-2 text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.22)' }}>
-                {person.vibe}
-              </p>
+              <p className="mt-2 text-[11px] text-gray-400 leading-relaxed">{person.vibe}</p>
             </div>
 
             {/* Separator */}
-            <div className="mb-5" style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.07)' }} />
+            <div className="mb-5 h-px bg-gray-100" />
 
             {/* Dimension bars */}
             <div className="space-y-[18px]">
@@ -260,37 +248,36 @@ export const VibeSnapshot: React.FC<VibeSnapshotProps> = ({ person, onClose }) =
                 const value = person.dimensions[dim.key];
                 return (
                   <div key={dim.key}>
-                    <div className="flex justify-between mb-1.5">
-                      <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.28)' }}>
+                    {/* Dim name · value% on the same line */}
+                    <div className="flex items-baseline justify-between mb-1.5">
+                      <span className="text-[12px] font-semibold" style={{ color: person.color }}>
                         {dim.name}
-                      </span>
-                      <span className="text-[11px] font-semibold" style={{ color: person.color }}>
+                        <span className="font-normal opacity-50 mx-1">·</span>
                         {value}%
                       </span>
                     </div>
                     <div className="flex justify-between mb-1.5">
-                      <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.16)' }}>{dim.left}</span>
-                      <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.16)' }}>{dim.right}</span>
+                      <span className="text-[10px] text-gray-400">{dim.left}</span>
+                      <span className="text-[10px] text-gray-400">{dim.right}</span>
                     </div>
                     {/* Track */}
-                    <div className="relative h-[3px] rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
+                    <div className="relative h-[3px] rounded-full bg-gray-100">
                       {/* Fill */}
                       <div
                         className="absolute inset-y-0 left-0 rounded-full"
                         style={{
                           backgroundColor: person.color,
                           width: revealed ? `${value}%` : '0%',
-                          transition: `width 0.75s cubic-bezier(0.4, 0, 0.2, 1) ${i * 110}ms`,
+                          transition: `width 0.75s cubic-bezier(0.4,0,0.2,1) ${i * 110}ms`,
                         }}
                       />
                       {/* Dot */}
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full"
+                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm"
                         style={{
                           backgroundColor: person.color,
-                          border: '1.5px solid rgba(255,255,255,0.2)',
                           left: revealed ? `${value}%` : '0%',
-                          transition: `left 0.75s cubic-bezier(0.4, 0, 0.2, 1) ${i * 110}ms`,
+                          transition: `left 0.75s cubic-bezier(0.4,0,0.2,1) ${i * 110}ms`,
                         }}
                       />
                     </div>
@@ -300,19 +287,19 @@ export const VibeSnapshot: React.FC<VibeSnapshotProps> = ({ person, onClose }) =
             </div>
 
             {/* Card footer */}
-            <p className="mt-6 text-center text-[10px]" style={{ color: 'rgba(255,255,255,0.1)' }}>
+            <p className="mt-6 text-center text-[10px] text-gray-300">
               MBTI Personality Dashboard
             </p>
           </div>
         </div>
 
-        {/* Download button */}
+        {/* Download */}
         <button
           onClick={handleDownload}
           disabled={downloading}
           className="w-full mt-3 py-3 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-[0.98]"
           style={{
-            backgroundColor: downloading ? 'rgba(255,255,255,0.1)' : person.color,
+            backgroundColor: downloading ? 'rgba(255,255,255,0.15)' : person.color,
             color: downloading ? 'rgba(255,255,255,0.5)' : 'white',
           }}
         >
@@ -323,7 +310,7 @@ export const VibeSnapshot: React.FC<VibeSnapshotProps> = ({ person, onClose }) =
       <style>{`
         @keyframes cardAppear {
           from { opacity: 0; transform: scale(0.93) translateY(8px); }
-          to   { opacity: 1; transform: scale(1) translateY(0); }
+          to   { opacity: 1; transform: scale(1)    translateY(0); }
         }
       `}</style>
     </div>

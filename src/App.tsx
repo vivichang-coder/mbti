@@ -3,7 +3,7 @@ import { PEOPLE, DIMENSIONS } from './data/mbti';
 import type { Person } from './data/mbti';
 import { PersonCard } from './components/PersonCard';
 import { DimensionBar } from './components/DimensionBar';
-import { RadarChart } from './components/RadarChart';
+import { GroupPulse } from './components/GroupPulse';
 import { VibeSnapshot } from './components/VibeSnapshot';
 
 export default function App() {
@@ -141,7 +141,7 @@ export default function App() {
 
         {/* ── Shape of You (Radar Chart) ────────────────────────────── */}
         <section className="mb-16">
-          <RadarChart activePeopleIds={activePeopleIds} />
+          <GroupPulse activePeopleIds={activePeopleIds} />
         </section>
 
         {/* ── Footer ──────────────────────────────────────────────── */}
