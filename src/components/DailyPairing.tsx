@@ -2,6 +2,7 @@ import React from 'react';
 import { PEOPLE, DIMENSIONS } from '../data/mbti';
 import type { Person } from '../data/mbti';
 import type { DimensionKey } from '../data/mbti';
+import { PersonAvatar } from './PersonAvatar';
 
 // ─── Seeded random ────────────────────────────────────────────────────────────
 
@@ -136,10 +137,12 @@ export const DailyPairing: React.FC<DailyPairingProps> = ({ activePeopleIds }) =
             {/* Person A */}
             <div className="flex flex-col items-center gap-1.5 flex-1">
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white text-base font-bold"
-                style={{ backgroundColor: pa.color }}
+                className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: pa.colorLight }}
               >
-                {pa.name[0]}
+                <div className="w-6 h-6">
+                  <PersonAvatar mbtiType={pa.mbtiType} color={pa.color} />
+                </div>
               </div>
               <span className="text-sm font-semibold text-gray-900 text-center leading-tight">{pa.name}</span>
               <span className="text-[11px] font-semibold" style={{ color: pa.color }}>{pa.mbtiType}</span>
@@ -155,10 +158,12 @@ export const DailyPairing: React.FC<DailyPairingProps> = ({ activePeopleIds }) =
             {/* Person B */}
             <div className="flex flex-col items-center gap-1.5 flex-1">
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center text-white text-base font-bold"
-                style={{ backgroundColor: pb.color }}
+                className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: pb.colorLight }}
               >
-                {pb.name[0]}
+                <div className="w-6 h-6">
+                  <PersonAvatar mbtiType={pb.mbtiType} color={pb.color} />
+                </div>
               </div>
               <span className="text-sm font-semibold text-gray-900 text-center leading-tight">{pb.name}</span>
               <span className="text-[11px] font-semibold" style={{ color: pb.color }}>{pb.mbtiType}</span>

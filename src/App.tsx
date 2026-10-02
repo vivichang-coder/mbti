@@ -11,10 +11,8 @@ import { VibeSnapshot } from './components/VibeSnapshot';
 type GroupId = 'fairies' | 'friends' | 'all';
 
 export default function App() {
-  const [activeGroupId, setActiveGroupId] = useState<GroupId>('fairies');
-  const [activePeopleIds, setActivePeopleIds] = useState<string[]>(
-    GROUPS.find(g => g.id === 'fairies')!.memberIds
-  );
+  const [activeGroupId, setActiveGroupId] = useState<GroupId>('all');
+  const [activePeopleIds, setActivePeopleIds] = useState<string[]>(PEOPLE.map(p => p.id));
   const [snapshotPerson, setSnapshotPerson] = useState<Person | null>(null);
   const [headerVisible, setHeaderVisible] = useState(false);
 

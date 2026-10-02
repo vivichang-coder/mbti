@@ -37,7 +37,7 @@ export const DimensionLeaders: React.FC<DimensionLeadersProps> = ({ activePeople
   return (
     <div>
       <div className="flex items-baseline gap-2 mb-1">
-        <h2 className="text-base font-semibold text-gray-900">人格排行榜</h2>
+        <h2 className="text-base font-semibold text-gray-900">人格極端榜</h2>
         <span className="text-xs text-gray-400">/ Dimension Leaders</span>
       </div>
       <p className="text-xs text-gray-400 mb-5">每個向度中，特質最突出的人</p>
@@ -65,31 +65,37 @@ export const DimensionLeaders: React.FC<DimensionLeadersProps> = ({ activePeople
                 <span className="text-[10px] text-gray-300">/ {dim.chineseName}</span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {/* Left extreme */}
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
-                    style={{ backgroundColor: leftPerson.colorLight, color: leftPerson.color }}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: leftPerson.color }} />
-                    {leftPerson.name} · {leftVal}%
+                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                  <span className="text-base flex-shrink-0">🏆</span>
+                  <div className="min-w-0">
+                    <div
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex"
+                      style={{ backgroundColor: leftPerson.colorLight, color: leftPerson.color }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: leftPerson.color }} />
+                      {leftPerson.name} · {leftVal}%
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-0.5 pl-1">{leftLabel}</div>
                   </div>
-                  <span className="text-[10px] text-gray-400 whitespace-nowrap hidden sm:inline">{leftLabel}</span>
                 </div>
 
-                <span className="text-gray-200 flex-shrink-0 text-xs">·</span>
+                <span className="text-gray-200 flex-shrink-0 text-xs">|</span>
 
                 {/* Right extreme */}
-                <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                  <span className="text-[10px] text-gray-400 whitespace-nowrap hidden sm:inline">{rightLabel}</span>
-                  <div
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
-                    style={{ backgroundColor: rightPerson.colorLight, color: rightPerson.color }}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: rightPerson.color }} />
-                    {rightPerson.name} · {rightVal}%
+                <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+                  <div className="min-w-0 text-right">
+                    <div
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex"
+                      style={{ backgroundColor: rightPerson.colorLight, color: rightPerson.color }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: rightPerson.color }} />
+                      {rightPerson.name} · {rightVal}%
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-0.5 pr-1">{rightLabel}</div>
                   </div>
+                  <span className="text-base flex-shrink-0">🏆</span>
                 </div>
               </div>
             </div>
