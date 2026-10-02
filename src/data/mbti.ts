@@ -73,7 +73,7 @@ export const PEOPLE: Person[] = [
   },
   {
     id: 'yoyo',
-    name: 'Yo-yo',
+    name: 'Yoyo',
     mbtiType: 'INTJ-T',
     mbtiRole: 'Architect',
     mbtiRoleChinese: '建築師',

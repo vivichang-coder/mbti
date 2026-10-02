@@ -89,6 +89,28 @@ export default function App() {
           }}
         >
           <div className="flex items-center gap-2 flex-wrap">
+            {/* All — first */}
+            <button
+              onClick={() => selectGroup('all')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+              style={
+                activeGroupId === 'all'
+                  ? { backgroundColor: '#D4607A', color: '#ffffff', boxShadow: '0 2px 8px rgba(212,96,122,0.35)' }
+                  : { backgroundColor: '#ffffff', color: '#6B7280', border: '1px solid #E5E3DF' }
+              }
+            >
+              <span>All</span>
+              <span
+                className="text-[11px] font-semibold ml-0.5 px-1.5 py-0.5 rounded-full"
+                style={
+                  activeGroupId === 'all'
+                    ? { backgroundColor: 'rgba(255,255,255,0.22)', color: 'rgba(255,255,255,0.9)' }
+                    : { backgroundColor: '#F7F6F3', color: '#9CA3AF' }
+                }
+              >
+                {PEOPLE.length}
+              </span>
+            </button>
             {GROUPS.map(group => (
               <button
                 key={group.id}
@@ -96,7 +118,7 @@ export default function App() {
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
                 style={
                   activeGroupId === group.id
-                    ? { backgroundColor: '#111111', color: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
+                    ? { backgroundColor: '#D4607A', color: '#ffffff', boxShadow: '0 2px 8px rgba(212,96,122,0.35)' }
                     : { backgroundColor: '#ffffff', color: '#6B7280', border: '1px solid #E5E3DF' }
                 }
               >
@@ -106,7 +128,7 @@ export default function App() {
                   className="text-[11px] font-semibold ml-0.5 px-1.5 py-0.5 rounded-full"
                   style={
                     activeGroupId === group.id
-                      ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)' }
+                      ? { backgroundColor: 'rgba(255,255,255,0.22)', color: 'rgba(255,255,255,0.9)' }
                       : { backgroundColor: '#F7F6F3', color: '#9CA3AF' }
                   }
                 >
@@ -114,27 +136,6 @@ export default function App() {
                 </span>
               </button>
             ))}
-            <button
-              onClick={() => selectGroup('all')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
-              style={
-                activeGroupId === 'all'
-                  ? { backgroundColor: '#111111', color: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
-                  : { backgroundColor: '#ffffff', color: '#6B7280', border: '1px solid #E5E3DF' }
-              }
-            >
-              <span>全部</span>
-              <span
-                className="text-[11px] font-semibold ml-0.5 px-1.5 py-0.5 rounded-full"
-                style={
-                  activeGroupId === 'all'
-                    ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)' }
-                    : { backgroundColor: '#F7F6F3', color: '#9CA3AF' }
-                }
-              >
-                {PEOPLE.length}
-              </span>
-            </button>
           </div>
         </section>
 
