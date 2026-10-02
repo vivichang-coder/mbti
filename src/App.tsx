@@ -4,6 +4,8 @@ import type { Person } from './data/mbti';
 import { PersonCard } from './components/PersonCard';
 import { DimensionBar } from './components/DimensionBar';
 import { GroupPulse } from './components/GroupPulse';
+import { DimensionLeaders } from './components/DimensionLeaders';
+import { DailyPairing } from './components/DailyPairing';
 import { VibeSnapshot } from './components/VibeSnapshot';
 
 type GroupId = 'fairies' | 'friends' | 'all';
@@ -268,8 +270,18 @@ export default function App() {
         </section>
 
         {/* ── Group Pulse ───────────────────────────────────────────── */}
-        <section className="mb-16">
+        <section className="mb-10">
           <GroupPulse activePeopleIds={activePeopleIds} />
+        </section>
+
+        {/* ── Dimension Leaders ─────────────────────────────────────── */}
+        <section className="mb-10">
+          <DimensionLeaders activePeopleIds={activePeopleIds} />
+        </section>
+
+        {/* ── Daily Pairing ─────────────────────────────────────────── */}
+        <section className="mb-16">
+          <DailyPairing activePeopleIds={activePeopleIds} />
         </section>
 
         {/* ── Footer ──────────────────────────────────────────────── */}
