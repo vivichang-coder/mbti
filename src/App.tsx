@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PEOPLE, DIMENSIONS, GROUPS } from './data/mbti';
 import type { Person } from './data/mbti';
 import { PersonCard } from './components/PersonCard';
@@ -10,15 +10,48 @@ import { VibeSnapshot } from './components/VibeSnapshot';
 
 type GroupId = 'fairies' | 'friends' | 'all';
 
+const NAV_ITEMS = [
+  { id: 'cards',    label: '人物',    emoji: '👥' },
+  { id: 'dims',     label: '向度',    emoji: '📊' },
+  { id: 'pulse',    label: '共識地圖', emoji: '🗺️' },
+  { id: 'leaders',  label: '極端榜',  emoji: '🏆' },
+  { id: 'pairing',  label: '今日配對', emoji: '✨' },
+];
+
 export default function App() {
   const [activeGroupId, setActiveGroupId] = useState<GroupId>('all');
   const [activePeopleIds, setActivePeopleIds] = useState<string[]>(PEOPLE.map(p => p.id));
   const [snapshotPerson, setSnapshotPerson] = useState<Person | null>(null);
   const [headerVisible, setHeaderVisible] = useState(false);
+  const [navVisible, setNavVisible] = useState(false);
+
+  const headerRef = useRef<HTMLElement>(null);
+  const sectionRefs: Record<string, React.RefObject<HTMLElement>> = {
+    cards:   useRef<HTMLElement>(null),
+    dims:    useRef<HTMLElement>(null),
+    pulse:   useRef<HTMLElement>(null),
+    leaders: useRef<HTMLElement>(null),
+    pairing: useRef<HTMLElement>(null),
+  };
+
+  const scrollToSection = (id: string) => {
+    sectionRefs[id]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setHeaderVisible(true), 60);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setNavVisible(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const selectGroup = (groupId: GroupId) => {
@@ -47,10 +80,43 @@ export default function App() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F7F6F3' }}>
+
+      {/* ── Sticky Nav ──────────────────────────────────────────────── */}
+      <div
+        className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
+        style={{
+          opacity: navVisible ? 1 : 0,
+          transform: navVisible ? 'translateY(0)' : 'translateY(-100%)',
+          pointerEvents: navVisible ? 'auto' : 'none',
+          backgroundColor: 'rgba(247,246,243,0.92)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+        }}
+      >
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-1 overflow-x-auto py-2.5 scrollbar-hide">
+            {NAV_ITEMS.map(item => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-150 flex-shrink-0"
+                style={{ color: '#6B7280', backgroundColor: 'transparent' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#ffffff'; (e.currentTarget as HTMLElement).style.color = '#111111'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#6B7280'; }}
+              >
+                <span>{item.emoji}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
 
         {/* ── Header ─────────────────────────────────────────────────── */}
         <header
+          ref={headerRef}
           className="mb-10 transition-all duration-700"
           style={{
             opacity: headerVisible ? 1 : 0,
@@ -140,7 +206,7 @@ export default function App() {
         </section>
 
         {/* ── Person Cards ──────────────────────────────────────────── */}
-        <section className="mb-10">
+        <section ref={sectionRefs.cards} className="mb-10">
           {activeGroupId === 'all' ? (
             /* Two grouped sections */
             <div className="space-y-6">
@@ -236,7 +302,7 @@ export default function App() {
         </section>
 
         {/* ── Dimension Bars ────────────────────────────────────────── */}
-        <section className="mb-10">
+        <section ref={sectionRefs.dims} className="mb-10">
           <div
             className="rounded-2xl overflow-hidden"
             style={{
@@ -268,17 +334,17 @@ export default function App() {
         </section>
 
         {/* ── Group Pulse ───────────────────────────────────────────── */}
-        <section className="mb-10">
+        <section ref={sectionRefs.pulse} className="mb-10">
           <GroupPulse activePeopleIds={activePeopleIds} />
         </section>
 
         {/* ── Dimension Leaders ─────────────────────────────────────── */}
-        <section className="mb-10">
+        <section ref={sectionRefs.leaders} className="mb-10">
           <DimensionLeaders activePeopleIds={activePeopleIds} />
         </section>
 
         {/* ── Daily Pairing ─────────────────────────────────────────── */}
-        <section className="mb-16">
+        <section ref={sectionRefs.pairing} className="mb-16">
           <DailyPairing activePeopleIds={activePeopleIds} />
         </section>
 
