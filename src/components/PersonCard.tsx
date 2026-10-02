@@ -48,10 +48,20 @@ const INTJAvatar = ({ color }: { color: string }) => (
   </svg>
 );
 
+const ENTJAvatar = ({ color }: { color: string }) => (
+  <svg viewBox="0 0 80 80" fill="none" width="100%" height="100%">
+    <path d="M40 6 L74 40 L40 74 L6 40 Z" fill={color} opacity="0.65"/>
+    <path d="M40 18 L62 40 L40 62 L18 40 Z" fill={color} opacity="0.35"/>
+    <circle cx="40" cy="40" r="7" fill={color} opacity="0.95"/>
+    <circle cx="40" cy="40" r="3" fill="white" opacity="0.4"/>
+  </svg>
+);
+
 const PersonAvatar = ({ mbtiType, color }: { mbtiType: string; color: string }) => {
   const base = mbtiType.split('-')[0];
   if (base === 'ENFJ') return <ENFJAvatar color={color} />;
   if (base === 'INTJ') return <INTJAvatar color={color} />;
+  if (base === 'ENTJ') return <ENTJAvatar color={color} />;
   return <ENFPAvatar color={color} />;
 };
 

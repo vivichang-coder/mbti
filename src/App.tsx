@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { PEOPLE, DIMENSIONS } from './data/mbti';
+import { PEOPLE, DIMENSIONS, GROUPS } from './data/mbti';
 import type { Person } from './data/mbti';
 import { PersonCard } from './components/PersonCard';
 import { DimensionBar } from './components/DimensionBar';
 import { GroupPulse } from './components/GroupPulse';
 import { VibeSnapshot } from './components/VibeSnapshot';
 
+type GroupId = 'fairies' | 'friends' | 'all';
+
 export default function App() {
-  const [activePeopleIds, setActivePeopleIds] = useState<string[]>(PEOPLE.map(p => p.id));
+  const [activeGroupId, setActiveGroupId] = useState<GroupId>('fairies');
+  const [activePeopleIds, setActivePeopleIds] = useState<string[]>(
+    GROUPS.find(g => g.id === 'fairies')!.memberIds
+  );
   const [snapshotPerson, setSnapshotPerson] = useState<Person | null>(null);
   const [headerVisible, setHeaderVisible] = useState(false);
 
@@ -16,13 +21,29 @@ export default function App() {
     return () => clearTimeout(t);
   }, []);
 
+  const selectGroup = (groupId: GroupId) => {
+    setActiveGroupId(groupId);
+    if (groupId === 'all') setActivePeopleIds(PEOPLE.map(p => p.id));
+    else setActivePeopleIds(GROUPS.find(g => g.id === groupId)!.memberIds);
+  };
+
   const togglePerson = (id: string) => {
     setActivePeopleIds(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
   };
 
-  const allActive = activePeopleIds.length === PEOPLE.length;
+  const visiblePeople =
+    activeGroupId === 'all'
+      ? PEOPLE
+      : PEOPLE.filter(p => GROUPS.find(g => g.id === activeGroupId)!.memberIds.includes(p.id));
+
+  const allVisibleActive = visiblePeople.every(p => activePeopleIds.includes(p.id));
+
+  const resetToGroupDefaults = () => {
+    if (activeGroupId === 'all') setActivePeopleIds(PEOPLE.map(p => p.id));
+    else setActivePeopleIds(GROUPS.find(g => g.id === activeGroupId)!.memberIds);
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F7F6F3' }}>
@@ -30,7 +51,7 @@ export default function App() {
 
         {/* ── Header ─────────────────────────────────────────────────── */}
         <header
-          className="mb-12 transition-all duration-700"
+          className="mb-10 transition-all duration-700"
           style={{
             opacity: headerVisible ? 1 : 0,
             transform: headerVisible ? 'translateY(0)' : 'translateY(12px)',
@@ -58,36 +79,142 @@ export default function App() {
           </p>
         </header>
 
+        {/* ── Group Selector ─────────────────────────────────────────── */}
+        <section
+          className="mb-6 transition-all duration-500"
+          style={{
+            opacity: headerVisible ? 1 : 0,
+            transform: headerVisible ? 'translateY(0)' : 'translateY(8px)',
+            transitionDelay: '80ms',
+          }}
+        >
+          <div className="flex items-center gap-2 flex-wrap">
+            {GROUPS.map(group => (
+              <button
+                key={group.id}
+                onClick={() => selectGroup(group.id as GroupId)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+                style={
+                  activeGroupId === group.id
+                    ? { backgroundColor: '#111111', color: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
+                    : { backgroundColor: '#ffffff', color: '#6B7280', border: '1px solid #E5E3DF' }
+                }
+              >
+                <span>{group.emoji}</span>
+                <span>{group.name}</span>
+                <span
+                  className="text-[11px] font-semibold ml-0.5 px-1.5 py-0.5 rounded-full"
+                  style={
+                    activeGroupId === group.id
+                      ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)' }
+                      : { backgroundColor: '#F7F6F3', color: '#9CA3AF' }
+                  }
+                >
+                  {group.memberIds.length}
+                </span>
+              </button>
+            ))}
+            <button
+              onClick={() => selectGroup('all')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200"
+              style={
+                activeGroupId === 'all'
+                  ? { backgroundColor: '#111111', color: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }
+                  : { backgroundColor: '#ffffff', color: '#6B7280', border: '1px solid #E5E3DF' }
+              }
+            >
+              <span>全部</span>
+              <span
+                className="text-[11px] font-semibold ml-0.5 px-1.5 py-0.5 rounded-full"
+                style={
+                  activeGroupId === 'all'
+                    ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)' }
+                    : { backgroundColor: '#F7F6F3', color: '#9CA3AF' }
+                }
+              >
+                {PEOPLE.length}
+              </span>
+            </button>
+          </div>
+        </section>
+
         {/* ── Person Cards ──────────────────────────────────────────── */}
         <section className="mb-10">
-          <div className="cards-scroll overflow-x-auto pb-2 -mx-1">
-            <div
-              className="grid gap-2.5 px-1"
-              style={{
-                gridTemplateColumns: `repeat(${PEOPLE.length}, minmax(130px, 1fr))`,
-                minWidth: `${PEOPLE.length * 142}px`,
-              }}
-            >
-              {PEOPLE.map((person, i) => (
-                <div
-                  key={person.id}
-                  className="transition-all duration-500"
-                  style={{
-                    opacity: headerVisible ? 1 : 0,
-                    transform: headerVisible ? 'translateY(0)' : 'translateY(10px)',
-                    transitionDelay: `${i * 60 + 100}ms`,
-                  }}
-                >
-                  <PersonCard
-                    person={person}
-                    isActive={activePeopleIds.includes(person.id)}
-                    onClick={() => togglePerson(person.id)}
-                    onSnapshot={() => setSnapshotPerson(person)}
-                  />
-                </div>
-              ))}
+          {activeGroupId === 'all' ? (
+            /* Two grouped sections */
+            <div className="space-y-6">
+              {GROUPS.map(group => {
+                const groupPeople = PEOPLE.filter(p => group.memberIds.includes(p.id));
+                return (
+                  <div key={group.id}>
+                    <div className="flex items-center gap-2 mb-3 px-1">
+                      <span className="text-sm">{group.emoji}</span>
+                      <span className="text-sm font-semibold text-gray-700">{group.name}</span>
+                      <span className="text-xs text-gray-400">· {groupPeople.length} 人</span>
+                    </div>
+                    <div className="cards-scroll overflow-x-auto pb-2 -mx-1">
+                      <div
+                        className="grid gap-2.5 px-1"
+                        style={{
+                          gridTemplateColumns: `repeat(${groupPeople.length}, minmax(130px, 1fr))`,
+                          minWidth: `${groupPeople.length * 142}px`,
+                        }}
+                      >
+                        {groupPeople.map((person, i) => (
+                          <div
+                            key={person.id}
+                            className="transition-all duration-500"
+                            style={{
+                              opacity: headerVisible ? 1 : 0,
+                              transform: headerVisible ? 'translateY(0)' : 'translateY(10px)',
+                              transitionDelay: `${i * 60 + 160}ms`,
+                            }}
+                          >
+                            <PersonCard
+                              person={person}
+                              isActive={activePeopleIds.includes(person.id)}
+                              onClick={() => togglePerson(person.id)}
+                              onSnapshot={() => setSnapshotPerson(person)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          ) : (
+            /* Single group cards */
+            <div className="cards-scroll overflow-x-auto pb-2 -mx-1">
+              <div
+                className="grid gap-2.5 px-1"
+                style={{
+                  gridTemplateColumns: `repeat(${visiblePeople.length}, minmax(130px, 1fr))`,
+                  minWidth: `${visiblePeople.length * 142}px`,
+                }}
+              >
+                {visiblePeople.map((person, i) => (
+                  <div
+                    key={person.id}
+                    className="transition-all duration-500"
+                    style={{
+                      opacity: headerVisible ? 1 : 0,
+                      transform: headerVisible ? 'translateY(0)' : 'translateY(10px)',
+                      transitionDelay: `${i * 60 + 100}ms`,
+                    }}
+                  >
+                    <PersonCard
+                      person={person}
+                      isActive={activePeopleIds.includes(person.id)}
+                      onClick={() => togglePerson(person.id)}
+                      onSnapshot={() => setSnapshotPerson(person)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex items-center justify-between mt-3 px-1">
             <p className="text-xs text-gray-400">
@@ -96,9 +223,9 @@ export default function App() {
                 <span className="ml-1">· 顯示 {activePeopleIds.length}/{PEOPLE.length} 人</span>
               )}
             </p>
-            {!allActive && (
+            {!allVisibleActive && (
               <button
-                onClick={() => setActivePeopleIds(PEOPLE.map(p => p.id))}
+                onClick={resetToGroupDefaults}
                 className="text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 underline underline-offset-2"
               >
                 全部顯示
@@ -139,7 +266,7 @@ export default function App() {
           )}
         </section>
 
-        {/* ── Shape of You (Radar Chart) ────────────────────────────── */}
+        {/* ── Group Pulse ───────────────────────────────────────────── */}
         <section className="mb-16">
           <GroupPulse activePeopleIds={activePeopleIds} />
         </section>
