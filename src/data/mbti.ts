@@ -163,6 +163,23 @@ export const PEOPLE: Person[] = [
       identity: 32,// 68% 情緒易波動 → 100-68=32
     },
   },
+  {
+    id: 'kouwei',
+    name: 'Kou-Wei',
+    mbtiType: 'ENFJ-T',
+    mbtiRole: 'Protagonist',
+    mbtiRoleChinese: '主人公',
+    color: '#7B96B2',
+    colorLight: '#EEF3F7',
+    vibe: '溫暖的傾聽者，把每個人的故事都放在心上',
+    dimensions: {
+      energy: 55,  // 55% 外向
+      mind: 61,    // 61% 天馬行空
+      nature: 61,  // 61% 情感細膩
+      tactics: 37, // 63% 運籌帷幄 → 100-63=37
+      identity: 36,// 64% 情緒易波動 → 100-64=36
+    },
+  },
 ];
 
 export const GROUPS: Group[] = [
@@ -176,6 +193,6 @@ export const GROUPS: Group[] = [
     id: 'friends',
     name: "Fairies' Friends",
     emoji: '💅',
-    memberIds: ['jenwei', 'david', 'charles'],
+    memberIds: ['jenwei', 'david', 'charles', 'kouwei'],
   },
 ];
